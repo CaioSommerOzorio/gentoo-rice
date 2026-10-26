@@ -18,6 +18,9 @@ PS1='\[\e[1;35m\]\u@\h\[\e[0m\] \[\e[1;34m\][\w]\[\e[0m\]\n\$ '
 alias c='xclip -selection clipboard'
 alias cls="clear && printf '\e[3J'"
 
+# SSH into server at home
+alias server='tailscale ssh undefined@server'
+
 . /etc/os-release
 osname=${NAME,,}
 cowsay bros using ${osname// linux/} btw

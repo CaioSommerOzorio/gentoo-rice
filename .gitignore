@@ -1,0 +1,12 @@
+*
+
+!.gitignore
+
+!i3
+!rofi
+!fastfetch
+!picom
+!polybar
+!alacritty.toml
+!wallpaper.jpg
+!.bashrc
