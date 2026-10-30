@@ -1,32 +1,104 @@
--- bootstrap lazy.nvim, LazyVim and your plugins
-require("config.lazy")
+-- basic settings
+vim.g.mapleader = " "
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
 
+-- Install lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+
+if not vim.uv.fs_stat(lazypath) then
+    vim.fn.system({
+        "git", "clone", "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable", lazypath,
+    })
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+-- remember cursor
+vim.api.nvim_create_autocmd("BufReadPost", {
+  callback = function()
+    local mark = vim.api.nvim_buf_get_mark(0, '"')
+    local line_count = vim.api.nvim_buf_line_count(0)
+
+    if mark[1] > 0 and mark[1] <= line_count then
+      vim.api.nvim_win_set_cursor(0, mark)
+    end
+  end,
+})
+
+-- enable universal clipboard
+vim.o.clipboard = 'unnamedplus'
+
+require("lazy").setup({
+  {
+    "echasnovski/mini.pairs",
+    version = false,
+    config = function()
+        require("mini.pairs").setup()
+    end,
+  },
+
+  {
+    "nvim-treesitter/nvim-treesitter",
+    lazy = false,
+    build = ":TSUpdate",
+    config = function()
+    require("nvim-treesitter").install({
+      "c",
+      "cpp",
+      "lua",
+      "python",
+      "vim",
+      "vimdoc",
+    })
+
+    vim.api.nvim_create_autocmd("FileType", {
+      callback = function(args)
+      local lang = vim.treesitter.language.get_lang(args.match)
+      if lang then
+        pcall(vim.treesitter.start, args.buf, lang)
+      end
+      end,
+    })
+    end,
+  },
+  {
+    'nvim-telescope/telescope.nvim', version = '*',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      -- optional but recommended
+      { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+    }
+  },
+  {
+    "kylechui/nvim-surround",
+    version = "^4.0.0", 
+    event = "VeryLazy",
+     config = function()
+       require("nvim-surround").setup({})
+     end,
+  },
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {},
+  }
+})
+
+-- telescope keybinds
+vim.keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>")
+vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<cr>")
+
+-- colorscheme
 vim.cmd.colorscheme("gentoo")
 
--- Recognize assembly files
-vim.filetype.add({ extension = { asm = "nasm" } })
-
--- VimTeX config
-vim.g.tex_flavor = "latex"
-vim.g.vimtex_view_method = "sioyek"
-vim.g.vimtex_compiler_method = "latexmk"
-
--- Telescope configs
-local builtin = require("telescope.builtin")
-vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
-vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
-vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope buffers" })
-vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
-
--- Surround
-vim.keymap.set("v", "[", "c[]<Esc>hp", { noremap = true, silent = true })
-vim.keymap.set("v", "{", "c{}<Esc>hp", { noremap = true, silent = true })
-vim.keymap.set("v", "(", "c()<Esc>hp", { noremap = true, silent = true })
-
--- New file
-vim.keymap.set("n", "<leader>nf", ":e %h/", { desc = "New file in current directory" })
-
--- Buffer manipulation
--- Move buffers around
-vim.keymap.set("n", "<C-S-h>", "[B", { noremap = true, silent = true })
-vim.keymap.set("n", "<C-S-l>", "]B", { noremap = true, silent = true })
+-- show trailing whitespaces
+vim.opt.list = true
+vim.opt.listchars = {
+  trail = '-', 
+}
