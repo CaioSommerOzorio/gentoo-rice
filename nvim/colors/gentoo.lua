@@ -4,7 +4,7 @@ if vim.fn.exists("syntax_on") == 1 then
   vim.cmd("syntax reset")
 end
 
-vim.g.colors_name = "monochrome"
+vim.g.colors_name = "gentoo"
 
 vim.api.nvim_set_hl(0, "Normal", { fg = "#d4ced9", bg = "#24182c" })
 vim.api.nvim_set_hl(0, "Identifier", { fg = "#c7f2f1" })
